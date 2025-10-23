@@ -14,8 +14,6 @@ Complete guide to Android Bluetooth architecture, protocols, and implementation.
 - Bluetooth Protocols (AVRCP, PBAP, MAP)
 - Debugging & Development Tools
 
-[**View BTStack Documentation →**](./BTStack.html)
-
 ---
 
 ### 📊 Logcat Guide - Android Debugging
@@ -27,8 +25,6 @@ Interactive learning guide for Android Logcat with real automotive examples.
 - Automotive System Components
 - ADB Commands & Filtering
 - Real-world Debugging Examples
-
-[**View Logcat Guide →**](./LogcatGuide.html)
 
 ---
 
