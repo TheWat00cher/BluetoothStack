@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Complete Android Bluetooth Stack documentation - Learn BTStack from basic to expert level. Architecture, HIDL, AIDL, debugging, and protocols explained.">
+    <meta name="keywords" content="Android Bluetooth, BTStack, Automotive, HIDL, AIDL, Bluetooth Stack, A2DP, HFP, AVRCP, Bluetooth Tutorial">
+    <meta name="author" content="Bluetooth Learning Guide">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Android Bluetooth Stack - Complete Guide">
+    <meta property="og:description" content="Professional guide to Android BTStack for automotive systems">
+    <meta property="og:type" content="website">
+    <title>Android Bluetooth Stack - Complete Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Modern Gradient Color Palette */
+            --primary-color: #667eea;        /* Soft Blue-Purple */
+            --secondary-color: #764ba2;      /* Rich Purple */
+            --accent-color: #f093fb;         /* Pink Accent */
+            --accent-2: #4facfe;             /* Cyan Blue */
+            --success-color: #43e97b;        /* Bright Green */
+            --warning-color: #fa709a;        /* Coral Pink */
+            --info-color: #30cfd0;           /* Turquoise */
+            
+            /* Background Colors */
+            --dark-bg: #0a0e27;              /* Deep Navy */
+            --card-bg: #151a35;              /* Dark Blue-Purple */
+            --card-hover: #1a2142;           /* Lighter Purple */
+            
+            /* Text Colors */
+            --text-primary: #ffffff;
+            --text-secondary: #a5b4fc;       /* Light Purple */
+            --text-muted: #6b7cba;           /* Muted Purple */
+            
+            /* Border & Code */
+            --border-color: #2d3561;
+            --code-bg: #0d1229;
+            
+            /* Status Colors */
+            --success: #43e97b;
+            --warning: #feca57;
+            --error: #ff6b6b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1f3a 50%, var(--dark-bg) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 50%, rgba(240, 147, 251, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            padding: 1rem 0;
+            box-shadow: 0 4px 30px rgba(102, 126, 234, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 2px solid rgba(240, 147, 251, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+        }
+
+        .header-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Navigation */
+        .nav {
+            background: rgba(21, 26, 53, 0.95);
+            padding: 1rem 0;
+            box-shadow: 0 2px 20px rgba(102, 126, 234, 0.2);
+            position: sticky;
+            top: 65px;
+            z-index: 999;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1.25rem;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            border-color: var(--primary-color);
+        }
+
+        .nav-link:hover::before {
+            left: 0;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Cards */
+        .card {
+            background: linear-gradient(135deg, rgba(21, 26, 53, 0.95), rgba(26, 33, 66, 0.95));
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.03), rgba(240, 147, 251, 0.03));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(102, 126, 234, 0.3);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color), transparent);
+            border-radius: 2px;
+        }
+
+        .section-subheader {
+            font-size: 1.5rem;
+            margin: 1.5rem 0 1rem;
+            background: linear-gradient(135deg, var(--info-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: linear-gradient(135deg, var(--code-bg), rgba(13, 18, 41, 0.95));
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-left: 4px solid var(--primary-color);
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color), transparent);
+        }
+
+        .code-inline {
+            background: rgba(102, 126, 234, 0.15);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            color: var(--accent-color);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: linear-gradient(135deg, rgba(21, 26, 53, 0.95), rgba(26, 33, 66, 0.95));
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            color: var(--text-primary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+            color: var(--text-secondary);
+        }
+
+        tr:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(240, 147, 251, 0.05));
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+            line-height: 1.6;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 0.25rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, var(--success-color), #38d9a9);
+            color: white;
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, var(--warning-color), #ffd93d);
+            color: white;
+        }
+
+        .badge-error {
+            background: linear-gradient(135deg, var(--error), #ff8787);
+            color: white;
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-2));
+            color: white;
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1.25rem 1.75rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+            backdrop-filter: blur(10px);
+            border: 1px solid;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(74, 172, 254, 0.1));
+            border-left-color: var(--primary-color);
+            border-color: rgba(102, 126, 234, 0.3);
+            color: var(--text-primary);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, rgba(67, 233, 123, 0.15), rgba(56, 217, 169, 0.1));
+            border-left-color: var(--success-color);
+            border-color: rgba(67, 233, 123, 0.3);
+            color: var(--text-primary);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(250, 112, 154, 0.15), rgba(255, 217, 61, 0.1));
+            border-left-color: var(--warning-color);
+            border-color: rgba(250, 112, 154, 0.3);
+            color: var(--text-primary);
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(255, 135, 135, 0.1));
+            border-left-color: var(--error);
+            border-color: rgba(255, 107, 107, 0.3);
+            color: var(--text-primary);
+        }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            background: linear-gradient(135deg, rgba(13, 18, 41, 0.95), rgba(21, 26, 53, 0.95));
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 1.5rem 0;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .flow-step {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin: 0.5rem 0;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            margin: 0.5rem 0;
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 4px rgba(240, 147, 251, 0.3));
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .grid-item {
+            background: linear-gradient(135deg, rgba(21, 26, 53, 0.95), rgba(26, 33, 66, 0.95));
+            padding: 1.75rem;
+            border-radius: 14px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(240, 147, 251, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.4);
+            border-color: var(--primary-color);
+        }
+
+        .grid-item:hover::before {
+            opacity: 1;
+        }
+
+        .grid-item h4 {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Comparison Table */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .comparison-item {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--border-color);
+        }
+
+        .comparison-item.wrong {
+            border-color: var(--error);
+        }
+
+        .comparison-item.correct {
+            border-color: var(--success);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--card-bg);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+            border-top: 2px solid var(--border-color);
+        }
+
+        /* Scrollbar - Hidden but functional */
+        ::-webkit-scrollbar {
+            width: 0px;
+            height: 0px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: transparent;
+        }
+
+        /* Hide scrollbar for Firefox */
+        * {
+            scrollbar-width: none;
+        }
+
+        /* Hide scrollbar for IE, Edge */
+        * {
+            -ms-overflow-style: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .nav-content {
+                flex-direction: column;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Emoji Support */
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 0.5rem;
+        }
+
+        /* Highlight Box */
+        .highlight {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(37, 99, 235, 0.2) 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid var(--secondary-color);
+            margin: 1.5rem 0;
+        }
+
+        /* Command Box */
+        .command-box {
+            background: linear-gradient(135deg, #0d1229 0%, #151a35 100%);
+            color: var(--success-color);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            font-family: 'Consolas', monospace;
+            margin: 1rem 0;
+            border: 1px solid rgba(67, 233, 123, 0.3);
+            box-shadow: 0 4px 16px rgba(67, 233, 123, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .command-box::before {
+            content: '$ ';
+            color: var(--accent-2);
+            font-weight: bold;
+        }
+
+        .command-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--success-color), transparent);
+        }
+
+        /* Dynamic Cursor Trail */
+        body {
+            cursor: none;
+            overflow-x: hidden;
+        }
+
+        .cursor {
+            position: fixed;
+            width: 28px;
+            height: 36px;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.15s ease;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32"><path d="M12 2 L12 30 M12 2 L20 10 L12 16 M12 16 L20 22 L12 30 M12 16 L4 10 L12 2 M12 16 L4 22 L12 30" stroke="%230082FC" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: drop-shadow(0 0 10px rgba(0, 130, 252, 0.9)) 
+                    drop-shadow(0 0 20px rgba(0, 130, 252, 0.6));
+            animation: bluetoothPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes bluetoothPulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 10px rgba(0, 130, 252, 0.9)) 
+                        drop-shadow(0 0 20px rgba(0, 130, 252, 0.6));
+            }
+            50% {
+                filter: drop-shadow(0 0 15px rgba(0, 130, 252, 1)) 
+                        drop-shadow(0 0 30px rgba(0, 130, 252, 0.8))
+                        drop-shadow(0 0 40px rgba(0, 130, 252, 0.5));
+            }
+        }
+
+        .trail {
+            position: fixed;
+            width: 18px;
+            height: 24px;
+            pointer-events: none;
+            z-index: 9999;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32"><path d="M12 2 L12 30 M12 2 L20 10 L12 16 M12 16 L20 22 L12 30 M12 16 L4 10 L12 2 M12 16 L4 22 L12 30" stroke="%230082FC" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: drop-shadow(0 0 8px rgba(0, 130, 252, 0.9))
+                    drop-shadow(0 0 15px rgba(0, 130, 252, 0.7));
+            animation: trailFade 0.9s ease-out forwards;
+        }
+
+        @keyframes trailFade {
+            0% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.3) rotate(90deg);
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            position: fixed;
+            width: 14px;
+            height: 18px;
+            pointer-events: none;
+            z-index: 9998;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32"><path d="M12 2 L12 30 M12 2 L20 10 L12 16 M12 16 L20 22 L12 30 M12 16 L4 10 L12 2 M12 16 L4 22 L12 30" stroke="%2300BFFF" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            filter: drop-shadow(0 0 8px rgba(0, 191, 255, 0.9));
+            animation: particleFloat 1.2s ease-out forwards;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0) rotate(270deg);
+                opacity: 0;
+            }
+        }
+
+        a, button, .nav-link {
+            cursor: none !important;
+        }
+
+        a:hover ~ .cursor,
+        button:hover ~ .cursor,
+        .nav-link:hover ~ .cursor {
+            transform: scale(1.5) rotate(10deg);
+            animation: bluetoothActive 0.5s ease-in-out infinite;
+        }
+
+        @keyframes bluetoothActive {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(0, 130, 252, 1)) 
+                        drop-shadow(0 0 30px rgba(0, 130, 252, 0.9))
+                        drop-shadow(0 0 45px rgba(0, 191, 255, 0.6));
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(0, 191, 255, 1)) 
+                        drop-shadow(0 0 40px rgba(0, 191, 255, 0.8))
+                        drop-shadow(0 0 60px rgba(0, 130, 252, 0.5));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="header-title">
+                <span style="font-size: 1.75rem;">📡</span>
+                <h1>Android Bluetooth Stack Guide</h1>
+            </div>
+            <!-- <div class="header-subtitle">
+                <span class="header-badge">📚 Complete Reference</span>
+                <span class="header-badge">� Basic to Expert</span>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-content">
+            <a href="#intro" class="nav-link">🎈 Intro</a>
+            <a href="#architecture" class="nav-link">🏗️ Architecture</a>
+            <a href="#hidl" class="nav-link">🔌 HIDL</a>
+            <a href="#aidl" class="nav-link">🚀 AIDL</a>
+            <a href="#audio-flow" class="nav-link">🎵 Audio Flow</a>
+            <a href="#protocols" class="nav-link">📡 Protocols</a>
+            <a href="#debugging" class="nav-link">🐛 Debugging</a>
+            <a href="#references" class="nav-link">📚 References</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+
+        <!-- Introduction Section -->
+        <div id="intro" class="card">
+            <h2 class="section-header"><span class="emoji">🎈</span> What is Bluetooth?</h2>
+            <div class="highlight">
+                <p><strong>Imagine Bluetooth as <span style="color: var(--accent-color);">invisible string</span> that connects your phone to other devices!</strong></p>
+                <p>Instead of real strings, it uses <strong>radio waves</strong> (like invisible walkie-talkies!)</p>
+            </div>
+
+            <h3 class="section-subheader">🥪 Think of it Like Building a Sandwich (Layers!)</h3>
+            <div class="flow-diagram">
+                <div class="flow-step">🍞 Top Bread = Your Apps (Spotify, Phone calls, Games)</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">🥬 Lettuce = Android System (The phone's brain)</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">🧀 Cheese = Translator (Converts between languages)</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">🥓 Bacon = Bluetooth Stack (The smart worker)</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">🍅 Tomato = Messenger (Sends instructions)</div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-step">🍞 Bottom Bread = Bluetooth Chip (The actual radio)</div>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>✅ Key Point:</strong> Each layer does ONE job really well! This is called <strong>layered architecture</strong>.
+            </div>
+        </div>
+
+        <!-- Architecture Section -->
+        <div id="architecture" class="card">
+            <h2 class="section-header"><span class="emoji">🏗️</span> Architecture Overview</h2>
+            
+            <div class="alert alert-info">
+                <strong>📚 The Complete Stack:</strong> Android Bluetooth architecture consists of 7 distinct layers, each with a specific responsibility. Think of it as a well-organized company with different departments!
+            </div>
+
+            <h3 class="section-subheader">📊 The Seven Layers (Top to Bottom)</h3>
+            
+            <div class="flow-diagram">
+                <div class="flow-step" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                    <strong>Layer 7: Applications</strong><br>
+                    Your apps (Spotify, WhatsApp, Games)<br>
+                    <span class="badge badge-info">Java/Kotlin APIs</span>
+                </div>
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <strong>Layer 6: Framework</strong><br>
+                    BluetoothManager, BluetoothAdapter<br>
+                    <span class="badge badge-info">Java Framework</span>
+                </div>
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);">
+                    <strong>Layer 5: JNI Bridge</strong><br>
+                    Java ↔ Native C++ Interface<br>
+                    <span class="badge badge-warning">JNI Layer</span>
+                </div>
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <strong>Layer 4: Bluetooth Stack</strong><br>
+                    Fluoride (Legacy) / Gabeldorschee (New Rust)<br>
+                    <span class="badge badge-success">C++ / Rust</span>
+                </div>
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <strong>Layer 3: HIDL/AIDL Interface</strong><br>
+                    Hardware Abstraction Layer Bridge<br>
+                    <span class="badge badge-warning">HAL Interface</span>
+                </div>
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step" style="background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);">
+                    <strong>Layer 2: HCI (Host Controller Interface)</strong><br>
+                    Communication protocol with hardware<br>
+                    <span class="badge badge-info">Protocol Layer</span>
+                </div>
+                <div class="flow-arrow">↓</div>
+                
+                <div class="flow-step" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">
+                    <strong>Layer 1: Bluetooth Controller</strong><br>
+                    Hardware chip (Qualcomm, Broadcom, MediaTek)<br>
+                    <span class="badge badge-error">Physical Hardware</span>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">🎯 Detailed Component Breakdown</h3>
+            <div class="grid">
+                <div class="grid-item" style="border-left: 4px solid #3b82f6;">
+                    <h4>📱 Application Layer</h4>
+                    <p><strong>Location:</strong> User space</p>
+                    <p><strong>Language:</strong> Java/Kotlin</p>
+                    <p><strong>What it does:</strong></p>
+                    <ul>
+                        <li>Your music players (Spotify)</li>
+                        <li>Messaging apps (WhatsApp)</li>
+                        <li>Games with controllers</li>
+                        <li>Fitness apps (heart rate monitors)</li>
+                    </ul>
+                    <p><strong>Key APIs:</strong> BluetoothDevice, BluetoothGatt, BluetoothA2dp</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #8b5cf6;">
+                    <h4>🧠 Framework Layer</h4>
+                    <p><strong>Location:</strong> Android System Services</p>
+                    <p><strong>Language:</strong> Java</p>
+                    <p><strong>What it does:</strong></p>
+                    <ul>
+                        <li>Manages Bluetooth adapter state (ON/OFF)</li>
+                        <li>Device discovery and pairing</li>
+                        <li>Profile service management</li>
+                        <li>Permission enforcement</li>
+                    </ul>
+                    <p><strong>Key Classes:</strong> BluetoothManager, AdapterService, ProfileService</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #ec4899;">
+                    <h4>🔗 JNI Bridge</h4>
+                    <p><strong>Location:</strong> Transition layer</p>
+                    <p><strong>Purpose:</strong> Language bridge</p>
+                    <p><strong>What it does:</strong></p>
+                    <ul>
+                        <li>Converts Java objects to C++ structures</li>
+                        <li>Marshals data between layers</li>
+                        <li>Handles callbacks from native code</li>
+                        <li>Memory management across boundary</li>
+                    </ul>
+                    <p><strong>Location in code:</strong> <code>packages/apps/Bluetooth/jni/</code></p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #f59e0b;">
+                    <h4>⚙️ Bluetooth Stack</h4>
+                    <p><strong>Location:</strong> <code>system/bt/</code> or <code>packages/modules/Bluetooth/</code></p>
+                    <p><strong>Language:</strong> C++ (Fluoride) → Rust (Gabeldorschee)</p>
+                    <p><strong>What it does:</strong></p>
+                    <ul>
+                        <li>Implements all Bluetooth protocols</li>
+                        <li>Profile implementations (A2DP, HFP, GATT)</li>
+                        <li>Connection management</li>
+                        <li>Security and encryption</li>
+                    </ul>
+                    <p><strong>Stacks:</strong></p>
+                    <ul>
+                        <li><span class="badge badge-warning">Fluoride</span> - Legacy C++ stack</li>
+                        <li><span class="badge badge-success">Gabeldorschee</span> - New Rust stack (memory safe!)</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #10b981;">
+                    <h4>🔌 HIDL/AIDL Interface</h4>
+                    <p><strong>Location:</strong> <code>hardware/interfaces/bluetooth/</code></p>
+                    <p><strong>Purpose:</strong> Vendor independence</p>
+                    <p><strong>What it does:</strong></p>
+                    <ul>
+                        <li>Provides stable interface between Android and vendor HAL</li>
+                        <li>Allows vendor updates without Android changes</li>
+                        <li>Process isolation for security</li>
+                        <li>Versioning support</li>
+                    </ul>
+                    <p><strong>Technologies:</strong></p>
+                    <ul>
+                        <li><span class="badge badge-warning">HIDL</span> - Android 8-12</li>
+                        <li><span class="badge badge-success">AIDL</span> - Android 13+ (faster, simpler)</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #06b6d4;">
+                    <h4>📡 HCI Layer</h4>
+                    <p><strong>Spec:</strong> Bluetooth Core Specification</p>
+                    <p><strong>Purpose:</strong> Hardware communication</p>
+                    <p><strong>What it does:</strong></p>
+                    <ul>
+                        <li>Command packets: Host → Controller</li>
+                        <li>Event packets: Controller → Host</li>
+                        <li>Data packets: ACL (data) and SCO (voice)</li>
+                        <li>Transports: USB, UART, SDIO</li>
+                    </ul>
+                    <p><strong>Packet Types:</strong></p>
+                    <ul>
+                        <li><span class="badge badge-info">CMD</span> - Commands</li>
+                        <li><span class="badge badge-success">EVT</span> - Events</li>
+                        <li><span class="badge badge-warning">ACL</span> - Data</li>
+                        <li><span class="badge badge-error">SCO</span> - Voice</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #6366f1;">
+                    <h4>🔧 Bluetooth Controller</h4>
+                    <p><strong>Type:</strong> Physical hardware chip</p>
+                    <p><strong>Vendors:</strong> Qualcomm, Broadcom, MediaTek, Intel</p>
+                    <p><strong>What it does:</strong></p>
+                    <ul>
+                        <li>RF (radio frequency) transmission/reception</li>
+                        <li>Baseband processing</li>
+                        <li>Link management and scheduling</li>
+                        <li>Frequency hopping (1600 times/sec)</li>
+                    </ul>
+                    <p><strong>Components:</strong></p>
+                    <ul>
+                        <li>📻 Radio (2.4GHz transceiver)</li>
+                        <li>🧮 Baseband processor</li>
+                        <li>💾 Firmware in flash memory</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #ef4444; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);">
+                    <h4>🌐 How They Work Together</h4>
+                    <p><strong>Example: Playing Music on Bluetooth Headphones</strong></p>
+                    <ol>
+                        <li><strong>App Layer:</strong> Spotify sends audio</li>
+                        <li><strong>Framework:</strong> Routes to Bluetooth A2DP</li>
+                        <li><strong>JNI:</strong> Passes to native stack</li>
+                        <li><strong>Stack:</strong> Encodes audio, applies A2DP/AVDTP</li>
+                        <li><strong>HIDL/AIDL:</strong> Sends to vendor HAL</li>
+                        <li><strong>HCI:</strong> Sends ACL data packets</li>
+                        <li><strong>Controller:</strong> Transmits via radio waves!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">📋 Quick Comparison Table</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Language</th>
+                        <th>Main Responsibility</th>
+                        <th>Example Components</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Applications</strong></td>
+                        <td>Java/Kotlin</td>
+                        <td>User-facing features</td>
+                        <td>Spotify, WhatsApp, Games</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Framework</strong></td>
+                        <td>Java</td>
+                        <td>System services & APIs</td>
+                        <td>BluetoothManager, AdapterService</td>
+                    </tr>
+                    <tr>
+                        <td><strong>JNI</strong></td>
+                        <td>C++/Java</td>
+                        <td>Language bridge</td>
+                        <td>JNI wrappers, marshaling</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stack</strong></td>
+                        <td>C++/Rust</td>
+                        <td>Protocol implementation</td>
+                        <td>Fluoride, Gabeldorschee</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HIDL/AIDL</strong></td>
+                        <td>IDL</td>
+                        <td>Vendor abstraction</td>
+                        <td>IBluetoothHci interface</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HCI</strong></td>
+                        <td>Protocol</td>
+                        <td>Hardware communication</td>
+                        <td>Commands, Events, Data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Controller</strong></td>
+                        <td>Firmware</td>
+                        <td>Radio transmission</td>
+                        <td>Qualcomm, Broadcom chips</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-success">
+                <strong>🎯 Key Takeaway:</strong> Each layer has a specific job. This separation allows:
+                <ul>
+                    <li>✅ Independent updates (app updates don't break hardware)</li>
+                    <li>✅ Vendor flexibility (different chips work with same Android)</li>
+                    <li>✅ Security isolation (HAL crashes don't affect apps)</li>
+                    <li>✅ Easy debugging (problems isolated to specific layer)</li>
+                </ul>
+            </div>
+
+            <h3 class="section-subheader">🗂️ File System Locations</h3>
+            <div class="alert alert-info">
+                <strong>📁 Where Things Live:</strong> Important file system paths for Android Bluetooth components. Use these for debugging, development, and configuration.
+            </div>
+
+            <div class="grid">
+                <div class="grid-item" style="border-left: 4px solid #3b82f6;">
+                    <h4>📱 Application Layer</h4>
+                    <div class="code-block" style="font-size: 0.85rem; margin-top: 0.5rem;">
+/data/app/
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        <strong>Purpose:</strong> Installed user apps<br>
+                        <strong>Contains:</strong> APK files of Bluetooth-using apps
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #8b5cf6;">
+                    <h4>🧠 Framework Layer</h4>
+                    <div class="code-block" style="font-size: 0.85rem; margin-top: 0.5rem;">
+/system/framework/
+/system/priv-app/Bluetooth/
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        <strong>Purpose:</strong> Android framework & system Bluetooth app<br>
+                        <strong>Contains:</strong> BluetoothManager, AdapterService
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #f59e0b;">
+                    <h4>⚙️ Bluetooth Stack</h4>
+                    <div class="code-block" style="font-size: 0.85rem; margin-top: 0.5rem;">
+/system/bt/
+/apex/com.android.btservices/
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        <strong>Purpose:</strong> Native Bluetooth code<br>
+                        <strong>Fluoride:</strong> <code>/system/bt/</code> (legacy C++)<br>
+                        <strong>Gabeldorschee:</strong> <code>/apex/</code> (new Rust)
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #10b981;">
+                    <h4>🔌 HIDL/AIDL Interfaces</h4>
+                    <div class="code-block" style="font-size: 0.85rem; margin-top: 0.5rem;">
+/system/lib64/android.hardware.bluetooth@1.0.so
+/system/lib64/android.hardware.bluetooth-V1-cpp.so
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        <strong>Purpose:</strong> HAL interface libraries<br>
+                        <strong>HIDL:</strong> <code>@1.0.so</code> format<br>
+                        <strong>AIDL:</strong> <code>-V1-cpp.so</code> format
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #06b6d4;">
+                    <h4>📡 HCI Layer</h4>
+                    <div class="code-block" style="font-size: 0.85rem; margin-top: 0.5rem;">
+/dev/hci0
+/sys/class/bluetooth/
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        <strong>Purpose:</strong> Hardware interface<br>
+                        <strong>/dev/hci0:</strong> HCI device node<br>
+                        <strong>/sys/class/:</strong> Bluetooth sysfs entries
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #ec4899;">
+                    <h4>⚙️ Configuration Files</h4>
+                    <div class="code-block" style="font-size: 0.85rem; margin-top: 0.5rem;">
+/system/etc/bluetooth/
+/vendor/etc/bluetooth/
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        <strong>Purpose:</strong> Bluetooth configuration<br>
+                        <strong>Files:</strong> bt_stack.conf, bt_did.conf, interop_database.conf
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #f59e0b;">
+                    <h4>📝 Log Files</h4>
+                    <div class="code-block" style="font-size: 0.85rem; margin-top: 0.5rem;">
+/data/misc/bluetooth/logs/btsnoop_hci.log
+/data/misc/bluedroid/
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        <strong>Purpose:</strong> HCI snoop logs & Bluetooth data<br>
+                        <strong>btsnoop_hci.log:</strong> Wireshark-compatible packet capture
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #6366f1;">
+                    <h4>🔧 Vendor HAL</h4>
+                    <div class="code-block" style="font-size: 0.85rem; margin-top: 0.5rem;">
+/vendor/lib64/hw/
+/vendor/bin/hw/
+                    </div>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        <strong>Purpose:</strong> Vendor-specific HAL implementations<br>
+                        <strong>Contains:</strong> Qualcomm, Broadcom, MediaTek HAL binaries
+                    </p>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">📋 Quick Path Reference Table</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Path</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Apps</strong></td>
+                        <td><code>/data/app/</code></td>
+                        <td>User-installed applications</td>
+                    </tr>
+                    <tr>
+                        <td><strong>System BT App</strong></td>
+                        <td><code>/system/priv-app/Bluetooth/</code></td>
+                        <td>System Bluetooth application</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fluoride Stack</strong></td>
+                        <td><code>/system/bt/</code></td>
+                        <td>Legacy C++ Bluetooth stack</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Gabeldorschee Stack</strong></td>
+                        <td><code>/apex/com.android.btservices/</code></td>
+                        <td>New Rust Bluetooth stack</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HIDL Interface</strong></td>
+                        <td><code>/system/lib64/android.hardware.bluetooth@1.0.so</code></td>
+                        <td>HIDL HAL library</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AIDL Interface</strong></td>
+                        <td><code>/system/lib64/android.hardware.bluetooth-V1-cpp.so</code></td>
+                        <td>AIDL HAL library</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HCI Device</strong></td>
+                        <td><code>/dev/hci0</code></td>
+                        <td>Bluetooth hardware device node</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sysfs</strong></td>
+                        <td><code>/sys/class/bluetooth/</code></td>
+                        <td>Bluetooth kernel interface</td>
+                    </tr>
+                    <tr>
+                        <td><strong>System Config</strong></td>
+                        <td><code>/system/etc/bluetooth/</code></td>
+                        <td>System BT configuration files</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vendor Config</strong></td>
+                        <td><code>/vendor/etc/bluetooth/</code></td>
+                        <td>Vendor-specific configuration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HCI Snoop Log</strong></td>
+                        <td><code>/data/misc/bluetooth/logs/btsnoop_hci.log</code></td>
+                        <td>Packet capture for Wireshark</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Vendor HAL</strong></td>
+                        <td><code>/vendor/lib64/hw/</code></td>
+                        <td>Vendor HAL implementations</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-success">
+                <strong>💡 Pro Tips for Using These Paths:</strong>
+                <ul>
+                    <li><strong>Check stack version:</strong> Look in <code>/apex/</code> for Gabeldorschee or <code>/system/bt/</code> for Fluoride</li>
+                    <li><strong>Pull HCI logs:</strong> <code>adb pull /data/misc/bluetooth/logs/btsnoop_hci.log</code></li>
+                    <li><strong>View config:</strong> <code>adb shell cat /system/etc/bluetooth/bt_stack.conf</code></li>
+                    <li><strong>Check HAL:</strong> <code>adb shell ls -l /vendor/lib64/hw/ | grep bluetooth</code></li>
+                    <li><strong>List interfaces:</strong> <code>adb shell ls /system/lib64/ | grep bluetooth</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- HIDL Section -->
+        <div id="hidl" class="card">
+            <h2 class="section-header"><span class="emoji">🔌</span> HIDL - Hardware Interface Definition Language</h2>
+            
+            <div class="alert alert-info">
+                <strong>🌐 HIDL = Universal Translator</strong> between Google's code and chip vendor's code!
+            </div>
+
+            <h3 class="section-subheader">🍽️ Restaurant Kitchen Analogy</h3>
+            <div class="comparison">
+                <div class="comparison-item wrong">
+                    <h4>❌ Without HIDL (Chaos!)</h4>
+                    <ul>
+                        <li>Customer speaks English</li>
+                        <li>Chef speaks Italian</li>
+                        <li>They can't understand each other!</li>
+                        <li>Every restaurant needs different system</li>
+                    </ul>
+                </div>
+                <div class="comparison-item correct">
+                    <h4>✅ With HIDL (Organized!)</h4>
+                    <ul>
+                        <li>Customer uses standard order form</li>
+                        <li>Waiter (HIDL) translates</li>
+                        <li>Chef gets it in their language</li>
+                        <li>All restaurants use same form!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">Key Benefits</h3>
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>🏢 Vendor Independence</h4>
+                    <p>Google updates Android without breaking vendor HAL</p>
+                </div>
+                <div class="grid-item">
+                    <h4>🛡️ Process Isolation</h4>
+                    <p>HAL crash doesn't kill Android framework</p>
+                </div>
+                <div class="grid-item">
+                    <h4>🔒 Security</h4>
+                    <p>Vendor code runs in restricted process</p>
+                </div>
+                <div class="grid-item">
+                    <h4>🚀 Fast Updates</h4>
+                    <p>Updates in weeks instead of years!</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+// HIDL Interface Example
+interface IBluetoothHci {
+    initialize(IBluetoothHciCallbacks callback);
+    sendHciCommand(vec&lt;uint8_t&gt; command);
+    sendAclData(vec&lt;uint8_t&gt; data);
+    close();
+};
+            </div>
+        </div>
+
+        <!-- AIDL Section -->
+        <div id="aidl" class="card">
+            <h2 class="section-header"><span class="emoji">🚀</span> AIDL - The Next Generation!</h2>
+            
+            <div class="highlight">
+                <h3>AIDL = HIDL's Younger, Smarter Brother! 🧠✨</h3>
+                <p><strong>HIDL:</strong> Born 2017, HAL only, Complex, Bit slow (like a fax machine 📠)</p>
+                <p><strong>AIDL:</strong> Born 2019+, Universal, Simple, Fast (like modern messaging 📱)</p>
+            </div>
+
+            <h3 class="section-subheader">📊 Complete Comparison</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>HIDL (Old)</th>
+                        <th>AIDL (New)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Purpose</strong></td>
+                        <td>HAL interfaces only</td>
+                        <td>Universal IPC (apps + HAL)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Introduced</strong></td>
+                        <td>Android 8.0 (2017)</td>
+                        <td>Android 10 (2019), mature in 13+</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Syntax</strong></td>
+                        <td>Complex <code>.hal</code> files</td>
+                        <td>Simpler <code>.aidl</code> files</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Generated Code</strong></td>
+                        <td>Large (~500KB per interface)</td>
+                        <td>Small (~100KB per interface)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Performance</strong></td>
+                        <td>Good</td>
+                        <td><span class="badge badge-success">Better (20-30% faster)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Language Support</strong></td>
+                        <td>C++, Java</td>
+                        <td>C++, Java, <span class="badge badge-success">Rust</span>, NDK</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Future Support</strong></td>
+                        <td>Maintenance only</td>
+                        <td><span class="badge badge-success">Active development</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-success">
+                <strong>🏆 Verdict:</strong> AIDL is the clear winner for new development!
+                <ul>
+                    <li>✅ 30% faster performance</li>
+                    <li>✅ 80% less generated code</li>
+                    <li>✅ Rust support (memory safe!)</li>
+                    <li>✅ Universal IPC (not just HAL)</li>
+                </ul>
+            </div>
+
+            <div class="code-block">
+// AIDL Interface Example (Simpler!)
+interface IBluetoothHci {
+    void initialize(in IBluetoothHciCallbacks callback);
+    void sendHciCommand(in byte[] command);
+    void sendAclData(in byte[] data);
+    void close();
+}
+            </div>
+        </div>
+
+        <!-- Audio Flow Section -->
+        <div id="audio-flow" class="card">
+            <h2 class="section-header"><span class="emoji">🎵</span> Bluetooth Audio Flow - DETAILED!</h2>
+            
+            <div class="alert alert-error">
+                <h3>🚨 Common Misconception Alert!</h3>
+                <h4>❌ WRONG PATH (What many people think):</h4>
+                <div class="code-block" style="background: rgba(239, 68, 68, 0.1);">
+Music → Bluetooth App → Stack → JNI → RFCOMM → L2CAP → A2DP → HAL → Controller
+                </div>
+                <h4>Problems:</h4>
+                <ul>
+                    <li>❌ There's no "Bluetooth App" for music routing</li>
+                    <li>❌ RFCOMM is NOT used for audio (it's for serial data!)</li>
+                    <li>❌ A2DP comes BEFORE L2CAP, not after</li>
+                    <li>❌ Missing critical components (AudioFlinger, AVDTP, Codec)</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-success">
+                <h3>✅ CORRECT AUDIO PATH!</h3>
+                <div class="flow-diagram">
+                    <div class="flow-step">🎵 Music App (Spotify)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">📱 AudioFlinger (Master Mixer)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">🎚️ AudioTrack (Java API)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">🔌 Audio HAL</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">🧩 Bluetooth Audio HAL (HIDL/AIDL)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">📦 Codec Encoding (SBC/AAC/aptX/LDAC)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">🎭 A2DP Profile ⚠️ (NOT after L2CAP!)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">🚚 AVDTP (Transport Protocol)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">📊 L2CAP (Packet Layer)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">📡 HCI → Bluetooth Controller</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">📡 AIR (2.4GHz Radio Waves)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">🎧 Headphones (Reverse Process)</div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">🎶 YOU HEAR MUSIC!</div>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">⏱️ Timing & Latency</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stage</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Codec Encoding</td>
+                        <td>5-20 ms</td>
+                    </tr>
+                    <tr>
+                        <td>Bluetooth Stack</td>
+                        <td>10-30 ms</td>
+                    </tr>
+                    <tr>
+                        <td>Wireless Transport</td>
+                        <td>5-10 ms</td>
+                    </tr>
+                    <tr>
+                        <td>Codec Decoding</td>
+                        <td>5-20 ms</td>
+                    </tr>
+                    <tr>
+                        <td>DAC + Amplifier</td>
+                        <td>1-5 ms</td>
+                    </tr>
+                    <tr>
+                        <td><strong>TOTAL</strong></td>
+                        <td><strong>26-85 ms (typical: 150-200ms with buffering)</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Protocols Section -->
+        <div id="protocols" class="card">
+            <h2 class="section-header"><span class="emoji">📡</span> Key Protocols Explained</h2>
+            
+            <div class="grid">
+                <div class="grid-item">
+                    <h3>🎭 A2DP</h3>
+                    <h4>Advanced Audio Distribution Profile</h4>
+                    <p><strong>Layer:</strong> Profile (Application)</p>
+                    <p><strong>Purpose:</strong> High-quality stereo audio streaming</p>
+                    <p><strong>Think:</strong> The <span style="color: var(--accent-color);">manager</span> who organizes the concert</p>
+                    <ul>
+                        <li>Codec negotiation</li>
+                        <li>Stream start/stop</li>
+                        <li>Quality of Service</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item">
+                    <h3>🚚 AVDTP</h3>
+                    <h4>Audio/Video Distribution Transport</h4>
+                    <p><strong>Layer:</strong> Transport</p>
+                    <p><strong>Purpose:</strong> Actually transports audio</p>
+                    <p><strong>Think:</strong> The <span style="color: var(--accent-color);">delivery truck</span> carrying music</p>
+                    <ul>
+                        <li>Packet formatting</li>
+                        <li>Timing & sync</li>
+                        <li>Stream establishment</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item">
+                    <h3>📊 L2CAP</h3>
+                    <h4>Logical Link Control</h4>
+                    <p><strong>Layer:</strong> Data Link</p>
+                    <p><strong>Purpose:</strong> General data transport</p>
+                    <p><strong>Think:</strong> The <span style="color: var(--accent-color);">road</span> the truck drives on</p>
+                    <ul>
+                        <li>Segmentation</li>
+                        <li>Flow control</li>
+                        <li>Multiple channels</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item">
+                    <h3>❌ RFCOMM</h3>
+                    <h4>Why NOT Used for Audio!</h4>
+                    <p><strong>Use:</strong> Serial communication ONLY</p>
+                    <p><strong>Think:</strong> <span style="color: var(--error);">Regular mail</span> 📬 (too slow!)</p>
+                    <p><strong>Used for:</strong></p>
+                    <ul>
+                        <li>File transfer</li>
+                        <li>Serial Port Profile</li>
+                        <li>Dial-Up Networking</li>
+                    </ul>
+                    <div class="alert alert-error">
+                        <strong>NOT for real-time audio streaming!</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Debugging Section -->
+        <div id="debugging" class="card">
+            <h2 class="section-header"><span class="emoji">🐛</span> Debugging & Development</h2>
+            
+            <div class="alert alert-info">
+                <strong>🔧 Essential Tools:</strong> Debugging Bluetooth requires the right tools. Here's everything you need to diagnose and fix Bluetooth issues on Android!
+            </div>
+
+            <h3 class="section-subheader">📱 Essential ADB Commands</h3>
+            <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 1rem;">Quick reference for the most critical ADB commands used in Bluetooth debugging and development.</p>
+
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;">
+                <div class="grid-item" style="border-left: 4px solid #3b82f6; background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(59, 130, 246, 0.02)); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 10px; right: 10px; background: rgba(16, 185, 129, 0.2); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: #10b981;">⭐ CRITICAL</div>
+                    <h4 style="color: #3b82f6; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <span style="font-size: 1.5rem;">📡</span>
+                        Enable HCI Snoop Log
+                    </h4>
+                    <div class="command-box" style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #3b82f6;">
+adb shell setprop persist.bluetooth.btsnooplogmode full
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border-left: 3px solid #3b82f6;">
+                        <p style="margin: 0 0 0.5rem 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #3b82f6;">📝 What it does:</strong> Captures ALL Bluetooth packets (HCI commands, events, data)</p>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #10b981;">🎯 Use for:</strong> Analyzing connection issues, packet inspection with Wireshark</p>
+                    </div>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));">
+                    <h4 style="color: #10b981; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <span style="font-size: 1.5rem;">📥</span>
+                        Pull HCI Log File
+                    </h4>
+                    <div class="command-box" style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #10b981;">
+adb pull /data/misc/bluetooth/logs/btsnoop_hci.log
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border-left: 3px solid #10b981;">
+                        <p style="margin: 0 0 0.5rem 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #10b981;">📝 What it does:</strong> Downloads captured log to your computer</p>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #06b6d4;">➡️ Next step:</strong> Open in Wireshark for detailed analysis</p>
+                    </div>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #f59e0b; background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(245, 158, 11, 0.02));">
+                    <h4 style="color: #f59e0b; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <span style="font-size: 1.5rem;">📊</span>
+                        Bluetooth System Dump
+                    </h4>
+                    <div class="command-box" style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #f59e0b;">
+adb shell dumpsys bluetooth_manager
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px; border-left: 3px solid #f59e0b;">
+                        <p style="margin: 0 0 0.5rem 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #f59e0b;">📝 What it does:</strong> Shows complete Bluetooth state snapshot</p>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #10b981;">📦 Includes:</strong> Connected devices, adapter state, profile info, bonds</p>
+                    </div>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #8b5cf6; background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), rgba(139, 92, 246, 0.02));">
+                    <h4 style="color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <span style="font-size: 1.5rem;">🔄</span>
+                        Restart Bluetooth Service
+                    </h4>
+                    <div class="command-box" style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #8b5cf6; font-size: 0.8rem;">
+adb shell svc bluetooth disable; sleep 2; adb shell svc bluetooth enable
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(139, 92, 246, 0.1); border-radius: 8px; border-left: 3px solid #8b5cf6;">
+                        <p style="margin: 0 0 0.5rem 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #8b5cf6;">📝 What it does:</strong> Quick reset without rebooting device</p>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #10b981;">🎯 Use for:</strong> Clearing stuck connections, soft reset</p>
+                    </div>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #ec4899; background: linear-gradient(135deg, rgba(236, 72, 153, 0.05), rgba(236, 72, 153, 0.02)); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.2); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: #ef4444;">⚠️ CAUTION</div>
+                    <h4 style="color: #ec4899; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <span style="font-size: 1.5rem;">🗑️</span>
+                        Clear Bluetooth Cache
+                    </h4>
+                    <div class="command-box" style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #ec4899;">
+adb shell pm clear com.android.bluetooth
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 3px solid #ef4444;">
+                        <p style="margin: 0 0 0.5rem 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #ec4899;">📝 What it does:</strong> Removes all paired devices and settings</p>
+                        <p style="margin: 0; color: #fca5a5; font-size: 0.9rem; font-weight: 600;"><strong style="color: #ef4444;">⚠️ Warning:</strong> Resets ALL Bluetooth data - use with caution!</p>
+                    </div>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #06b6d4; background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(6, 182, 212, 0.02));">
+                    <h4 style="color: #06b6d4; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <span style="font-size: 1.5rem;">📋</span>
+                        List Paired Devices
+                    </h4>
+                    <div class="command-box" style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #06b6d4; font-size: 0.8rem;">
+adb shell dumpsys bluetooth_manager | grep "Bonded devices"
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(6, 182, 212, 0.1); border-radius: 8px; border-left: 3px solid #06b6d4;">
+                        <p style="margin: 0 0 0.5rem 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #06b6d4;">📝 What it does:</strong> Shows all saved Bluetooth devices</p>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #10b981;">📤 Output:</strong> MAC addresses and device names</p>
+                    </div>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #f59e0b; background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(245, 158, 11, 0.02));">
+                    <h4 style="color: #f59e0b; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <span style="font-size: 1.5rem;">🔊</span>
+                        Audio HAL Status
+                    </h4>
+                    <div class="command-box" style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #f59e0b;">
+adb shell dumpsys media.audio_flinger
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px; border-left: 3px solid #f59e0b;">
+                        <p style="margin: 0 0 0.5rem 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #f59e0b;">📝 What it does:</strong> Shows audio routing and active streams</p>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #10b981;">🎯 Use for:</strong> Debugging A2DP audio issues</p>
+                    </div>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02));">
+                    <h4 style="color: #10b981; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <span style="font-size: 1.5rem;">📶</span>
+                        Bluetooth Properties
+                    </h4>
+                    <div class="command-box" style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #10b981;">
+adb shell getprop | grep bluetooth
+                    </div>
+                    <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border-left: 3px solid #10b981;">
+                        <p style="margin: 0 0 0.5rem 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #10b981;">📝 What it does:</strong> Lists all Bluetooth system properties</p>
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #06b6d4;">📦 Shows:</strong> Stack version, feature flags, debug settings</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert" style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1)); border-left: 4px solid #3b82f6;">
+                <h4 style="color: #3b82f6; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.25rem;">💡</span>
+                    Quick Tips for ADB Commands
+                </h4>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #cbd5e1; line-height: 1.8;">
+                    <li><strong style="color: #10b981;">Chain commands:</strong> Use <code>;</code> to execute multiple commands sequentially</li>
+                    <li><strong style="color: #10b981;">Redirect output:</strong> Use <code>&gt;</code> to save command output to files</li>
+                    <li><strong style="color: #10b981;">Filter results:</strong> Pipe to <code>grep</code> for specific information</li>
+                    <li><strong style="color: #10b981;">Multiple devices:</strong> Use <code>adb -s [DEVICE_ID]</code> to target specific device</li>
+                    <li><strong style="color: #10b981;">Root access:</strong> Some commands require <code>adb root</code> first</li>
+                </ul>
+            </div>
+
+            <h3 class="section-subheader">🔍 Real-time Logging Commands</h3>
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));">
+                <div class="grid-item" style="border-left: 4px solid #2563eb;">
+                    <h4 style="color: #2563eb; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">📡</span>
+                        Verbose Bluetooth Logs
+                    </h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">View all Bluetooth logs in real-time (verbose mode)</p>
+                    <div class="code-block" style="font-size: 0.85rem; background: rgba(15, 23, 42, 0.6);">
+adb logcat -s bt_btif:V -s bluetooth:V -s BluetoothAdapter:V
+                    </div>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #64748b;">
+                        <strong style="color: #10b981;">💡 Use for:</strong> General Bluetooth debugging and stack analysis
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #7c3aed;">
+                    <h4 style="color: #7c3aed; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🎵</span>
+                        A2DP Audio Profile
+                    </h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">Filter for specific profile (A2DP audio streaming)</p>
+                    <div class="code-block" style="font-size: 0.85rem; background: rgba(15, 23, 42, 0.6);">
+adb logcat -s A2dpService:V -s A2dpStateMachine:V
+                    </div>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #64748b;">
+                        <strong style="color: #10b981;">💡 Use for:</strong> Audio streaming issues, codec negotiation, quality problems
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #10b981;">
+                    <h4 style="color: #10b981; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">📶</span>
+                        BLE/GATT Operations
+                    </h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">Filter for GATT (Bluetooth Low Energy) operations</p>
+                    <div class="code-block" style="font-size: 0.85rem; background: rgba(15, 23, 42, 0.6);">
+adb logcat -s BluetoothGatt:V -s GattService:V
+                    </div>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #64748b;">
+                        <strong style="color: #10b981;">💡 Use for:</strong> BLE device connection, characteristic read/write, notifications
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #f59e0b;">
+                    <h4 style="color: #f59e0b; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🔄</span>
+                        Fresh Log Start
+                    </h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">Clear existing logs and start fresh session</p>
+                    <div class="code-block" style="font-size: 0.85rem; background: rgba(15, 23, 42, 0.6);">
+adb logcat -c; adb logcat -s bluetooth:V
+                    </div>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #64748b;">
+                        <strong style="color: #10b981;">💡 Use for:</strong> Clean slate before reproducing specific issues
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #06b6d4;">
+                    <h4 style="color: #06b6d4; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">💾</span>
+                        Save Logs to File
+                    </h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">Save logs to file with timestamp for later analysis</p>
+                    <div class="code-block" style="font-size: 0.85rem; background: rgba(15, 23, 42, 0.6);">
+adb logcat -s bluetooth:V -v time > bt_log_$(date +%Y%m%d_%H%M%S).txt
+                    </div>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #64748b;">
+                        <strong style="color: #10b981;">💡 Use for:</strong> Long-term debugging, issue reporting, analysis sharing
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #ec4899;">
+                    <h4 style="color: #ec4899; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🔗</span>
+                        Connection Events
+                    </h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">Monitor connection events only (filtered view)</p>
+                    <div class="code-block" style="font-size: 0.85rem; background: rgba(15, 23, 42, 0.6);">
+adb logcat -s bluetooth:V | grep -i "connect"
+                    </div>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #64748b;">
+                        <strong style="color: #10b981;">💡 Use for:</strong> Connection/disconnection issues, state transitions
+                    </p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #8b5cf6;">
+                    <h4 style="color: #8b5cf6; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1.5rem;">🔐</span>
+                        Pairing Process
+                    </h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">Watch pairing and bonding process in real-time</p>
+                    <div class="code-block" style="font-size: 0.85rem; background: rgba(15, 23, 42, 0.6);">
+adb logcat -s bluetooth:V | grep -i "pair\|bond"
+                    </div>
+                    <p style="margin-top: 0.75rem; font-size: 0.85rem; color: #64748b;">
+                        <strong style="color: #10b981;">💡 Use for:</strong> Pairing failures, authentication issues, security debugging
+                    </p>
+                </div>
+            </div>
+            
+            <div class="alert" style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1)); border-left: 4px solid #10b981;">
+                <h4 style="color: #10b981; margin-bottom: 0.5rem;">🎯 Pro Tips for Effective Logging</h4>
+                <ul style="margin: 0; padding-left: 1.5rem; color: #cbd5e1;">
+                    <li style="margin-bottom: 0.5rem;"><strong>Combine filters:</strong> Use multiple <code>-s</code> flags to capture related components</li>
+                    <li style="margin-bottom: 0.5rem;"><strong>Use verbosity levels:</strong> V (Verbose) > D (Debug) > I (Info) > W (Warning) > E (Error)</li>
+                    <li style="margin-bottom: 0.5rem;"><strong>Timestamp everything:</strong> Add <code>-v time</code> to see exact timing of events</li>
+                    <li style="margin-bottom: 0.5rem;"><strong>Pipe to grep:</strong> Chain with <code>grep</code> for specific keywords or patterns</li>
+                    <li><strong>Save critical logs:</strong> Always save logs when reporting issues to engineering teams</li>
+                </ul>
+            </div>
+
+            <h3 class="section-subheader">🔬 Advanced Debugging Tools</h3>
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>🦈 Wireshark Analysis</h4>
+                    <p><strong>Purpose:</strong> Packet-level Bluetooth inspection</p>
+                    <p><strong>Setup:</strong></p>
+                    <ol>
+                        <li>Enable HCI snoop log</li>
+                        <li>Reproduce issue</li>
+                        <li>Pull btsnoop_hci.log file</li>
+                        <li>Open in Wireshark</li>
+                    </ol>
+                    <p><strong>Filters:</strong></p>
+                    <ul>
+                        <li><code>bthci_evt</code> - HCI Events</li>
+                        <li><code>bthci_acl</code> - Data packets</li>
+                        <li><code>btl2cap</code> - L2CAP layer</li>
+                        <li><code>bta2dp</code> - A2DP audio</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item">
+                    <h4>📊 Bluetooth HCI Tools</h4>
+                    <p><strong>hcitool</strong> (if available):</p>
+                    <div class="code-block" style="font-size: 0.85rem;">
+# Scan for devices
+adb shell hcitool scan
+
+# Get device info
+adb shell hcitool info [MAC]
+
+# Check link quality
+adb shell hcitool lq [MAC]
+
+# Get RSSI (signal strength)
+adb shell hcitool rssi [MAC]
+                    </div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>🧪 Test Commands</h4>
+                    <p><strong>Bluetooth test operations:</strong></p>
+                    <div class="code-block" style="font-size: 0.85rem;">
+# Enable discoverable mode
+adb shell settings put global bluetooth_on 1
+adb shell am start -a android.bluetooth.adapter.action.REQUEST_DISCOVERABLE
+
+# Connect to device via ADB
+adb shell am start -a android.bluetooth.devicepicker.action.LAUNCH
+
+# Test A2DP audio
+adb shell media volume --show --stream 3 --set 15
+                    </div>
+                </div>
+
+                <div class="grid-item">
+                    <h4>📈 Performance Monitoring</h4>
+                    <p><strong>Monitor Bluetooth performance:</strong></p>
+                    <ul>
+                        <li><strong>CPU usage:</strong> <code>adb shell top | grep bluetooth</code></li>
+                        <li><strong>Memory:</strong> <code>adb shell dumpsys meminfo com.android.bluetooth</code></li>
+                        <li><strong>Battery:</strong> <code>adb shell dumpsys batterystats | grep bluetooth</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">🚗 Automotive Testing</h3>
+            <div class="alert alert-warning">
+                <strong>⚠️ Automotive-Specific Bluetooth Testing:</strong>
+                <div class="grid" style="margin-top: 1rem;">
+                    <div class="grid-item">
+                        <h4>🎧 A2DP Audio Testing</h4>
+                        <ul>
+                            <li>Enable HCI snoop log</li>
+                            <li>Monitor codec selection (SBC/AAC/aptX/LDAC)</li>
+                            <li>Check audio quality and latency</li>
+                            <li>Test volume synchronization</li>
+                            <li>Verify AVRCP controls (play/pause/next)</li>
+                        </ul>
+                        <div class="command-box" style="font-size: 0.85rem;">adb logcat -s A2dpService:V -s AvrcpTargetService:V</div>
+                    </div>
+
+                    <div class="grid-item">
+                        <h4>📞 HFP Call Testing</h4>
+                        <ul>
+                            <li>Test call audio routing</li>
+                            <li>Verify voice recognition (Siri/Google Assistant)</li>
+                            <li>Check SCO connection setup</li>
+                            <li>Test call controls (answer/reject/hangup)</li>
+                            <li>Monitor audio quality</li>
+                        </ul>
+                        <div class="command-box" style="font-size: 0.85rem;">adb logcat -s HeadsetService:V -s HeadsetStateMachine:V</div>
+                    </div>
+
+                    <div class="grid-item">
+                        <h4>📇 PBAP Contact Sync</h4>
+                        <ul>
+                            <li>Test phonebook download</li>
+                            <li>Verify contact transfer</li>
+                            <li>Check call history sync</li>
+                            <li>Test vCard parsing</li>
+                        </ul>
+                        <div class="command-box" style="font-size: 0.85rem;">adb logcat -s PbapClientService:V</div>
+                    </div>
+
+                    <div class="grid-item">
+                        <h4>📱 Multi-Device Connection</h4>
+                        <ul>
+                            <li>Test dual phone connection</li>
+                            <li>Verify profile distribution</li>
+                            <li>Test priority switching</li>
+                            <li>Check connection stability</li>
+                        </ul>
+                        <div class="command-box" style="font-size: 0.85rem;">adb shell dumpsys bluetooth_manager | grep "Connected devices"</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">🛠️ Common Issues & Solutions</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Symptoms</th>
+                        <th>Debug Command</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pairing Fails</strong></td>
+                        <td>Device won't pair, timeout</td>
+                        <td><code>adb logcat -s bluetooth:V | grep -i pair</code></td>
+                        <td>Clear cache, check permissions, verify PIN</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Audio Stuttering</strong></td>
+                        <td>Choppy sound, dropouts</td>
+                        <td><code>adb logcat -s A2dpService:V</code></td>
+                        <td>Check codec, reduce distance, minimize interference</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Connection Drops</strong></td>
+                        <td>Random disconnects</td>
+                        <td><code>adb shell dumpsys bluetooth_manager</code></td>
+                        <td>Check signal strength (RSSI), update firmware</td>
+                    </tr>
+                    <tr>
+                        <td><strong>No Audio</strong></td>
+                        <td>Connected but no sound</td>
+                        <td><code>adb shell dumpsys media.audio_flinger</code></td>
+                        <td>Check audio routing, verify A2DP profile active</td>
+                    </tr>
+                    <tr>
+                        <td><strong>High Latency</strong></td>
+                        <td>Lip-sync issues in videos</td>
+                        <td>Check HCI snoop log in Wireshark</td>
+                        <td>Use low-latency codec (aptX LL), check buffering</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BLE Not Working</strong></td>
+                        <td>Can't connect to BLE devices</td>
+                        <td><code>adb logcat -s BluetoothGatt:V</code></td>
+                        <td>Check permissions, verify BLE support, clear bonds</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="section-subheader">📚 Developer Options Settings</h3>
+            <div class="highlight">
+                <h4>Enable These Settings for Better Debugging:</h4>
+                <div class="grid">
+                    <div class="grid-item">
+                        <p><strong>🔊 Bluetooth Audio Codec</strong></p>
+                        <p>Settings → Developer Options → Bluetooth Audio Codec</p>
+                        <p>Choose: SBC, AAC, aptX, aptX HD, LDAC, LC3</p>
+                    </div>
+                    <div class="grid-item">
+                        <p><strong>📡 HCI Snoop Log</strong></p>
+                        <p>Settings → Developer Options → Enable Bluetooth HCI snoop log</p>
+                        <p>Options: Disabled, Filtered, Full</p>
+                    </div>
+                    <div class="grid-item">
+                        <p><strong>🎵 Sample Rate</strong></p>
+                        <p>Settings → Developer Options → Bluetooth Audio Sample Rate</p>
+                        <p>Options: 44.1kHz, 48kHz, 88.2kHz, 96kHz</p>
+                    </div>
+                    <div class="grid-item">
+                        <p><strong>📊 Bits Per Sample</strong></p>
+                        <p>Settings → Developer Options → Bluetooth Audio Bits Per Sample</p>
+                        <p>Options: 16-bit, 24-bit, 32-bit</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>✅ Pro Tips for Effective Debugging:</strong>
+                <ol>
+                    <li><strong>Always enable HCI snoop</strong> before reproducing issues</li>
+                    <li><strong>Use Wireshark</strong> for packet-level analysis</li>
+                    <li><strong>Check RSSI values</strong> to diagnose signal strength issues</li>
+                    <li><strong>Monitor logs in real-time</strong> during connection attempts</li>
+                    <li><strong>Test with multiple devices</strong> to rule out compatibility issues</li>
+                    <li><strong>Document codec selection</strong> for audio quality problems</li>
+                    <li><strong>Check firmware versions</strong> on both devices</li>
+                    <li><strong>Use dumpsys</strong> to get complete system state snapshots</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Quick Reference -->
+        <div class="card">
+            <h2 class="section-header"><span class="emoji">⚡</span> Quick Reference Card</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>What It Does</th>
+                        <th>Simple Analogy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>AudioFlinger</strong></td>
+                        <td>Mixes audio from all apps</td>
+                        <td>🎛️ DJ mixer</td>
+                    </tr>
+                    <tr>
+                        <td><strong>A2DP</strong></td>
+                        <td>Manages music streaming</td>
+                        <td>🎭 Concert manager</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AVDTP</strong></td>
+                        <td>Transports audio packets</td>
+                        <td>🚚 Delivery truck</td>
+                    </tr>
+                    <tr>
+                        <td><strong>L2CAP</strong></td>
+                        <td>Breaks data into packets</td>
+                        <td>🛣️ Highway</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HCI</strong></td>
+                        <td>Talks to hardware</td>
+                        <td>📮 Post office</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Codec</strong></td>
+                        <td>Compresses/decompresses audio</td>
+                        <td>🗜️ Zip/Unzip tool</td>
+                    </tr>
+                    <tr>
+                        <td><strong>HIDL/AIDL</strong></td>
+                        <td>Connects stack to hardware</td>
+                        <td>🌐 Translator</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Summary -->
+        <div class="card">
+            <h2 class="section-header"><span class="emoji">🎯</span> Key Takeaways</h2>
+            
+            <div class="highlight">
+                <h3>Remember These 7 Points:</h3>
+                <ol style="font-size: 1.1rem; line-height: 2;">
+                    <li><strong>Layered Architecture:</strong> Hardware → HCI → Stack → Framework → Apps</li>
+                    <li><strong>Two Types:</strong> Classic (music, calls) vs BLE (sensors, low power)</li>
+                    <li><strong>HIDL/AIDL:</strong> Bridge between Android and vendor hardware</li>
+                    <li><strong>Audio Flow:</strong> AudioFlinger → HAL → Codec → A2DP → AVDTP → L2CAP</li>
+                    <li><strong>NOT RFCOMM:</strong> Audio uses A2DP/AVDTP, not RFCOMM!</li>
+                    <li><strong>Codecs Matter:</strong> SBC, AAC, aptX, LDAC affect quality and latency</li>
+                    <li><strong>HCI Snoop:</strong> Essential tool for debugging Bluetooth issues</li>
+                </ol>
+            </div>
+
+            <div class="grid">
+                <div class="grid-item" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.2) 100%);">
+                    <h3>✅ For Developers</h3>
+                    <ul>
+                        <li>Use AIDL for new development</li>
+                        <li>Enable HCI snoop for debugging</li>
+                        <li>Test with multiple codecs</li>
+                        <li>Handle connection states properly</li>
+                    </ul>
+                </div>
+                <div class="grid-item" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(29, 78, 216, 0.2) 100%);">
+                    <h3>🚗 For Automotive</h3>
+                    <ul>
+                        <li>Test automotive profiles (HFP, A2DP)</li>
+                        <li>Optimize audio latency</li>
+                        <li>Support high-quality codecs</li>
+                        <li>Ensure multi-device support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- References Section -->
+        <div class="card" id="references">
+            <h2 class="section-header"><span class="emoji">📚</span> References & Resources</h2>
+            
+            <div class="alert alert-info">
+                <strong>📖 Essential Reading:</strong> Comprehensive list of official documentation, specifications, and development resources for Android Bluetooth development.
+            </div>
+
+            <h3 class="section-subheader">🏛️ Official Android Documentation</h3>
+            <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 1rem;">Comprehensive official documentation from Android and Google for Bluetooth development.</p>
+
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.25rem;">
+                <div class="grid-item" style="border-left: 4px solid #3b82f6; background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.02)); transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="flex-shrink: 0; width: 48px; height: 48px; background: rgba(59, 130, 246, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            📱
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #3b82f6; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Android Bluetooth Guide</h4>
+                            <p style="margin: 0 0 0.75rem 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Official Android Bluetooth Architecture</p>
+                        </div>
+                    </div>
+                    <a href="https://source.android.com/docs/core/connect/bluetooth" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #3b82f6; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.5rem 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px; margin-top: 0.75rem; transition: all 0.3s ease;">
+                        <span>🔗</span>
+                        <span>source.android.com/bluetooth</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                    <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Complete guide to Android Bluetooth stack architecture, HAL implementation, and system design.</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #8b5cf6; background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02)); transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="flex-shrink: 0; width: 48px; height: 48px; background: rgba(139, 92, 246, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            🔧
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #8b5cf6; margin: 0 0 0.5rem 0; font-size: 1.1rem;">Bluetooth APIs</h4>
+                            <p style="margin: 0 0 0.75rem 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">App Development Guide</p>
+                        </div>
+                    </div>
+                    <a href="https://developer.android.com/guide/topics/connectivity/bluetooth" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #8b5cf6; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.5rem 1rem; background: rgba(139, 92, 246, 0.1); border-radius: 8px; margin-top: 0.75rem; transition: all 0.3s ease;">
+                        <span>🔗</span>
+                        <span>developer.android.com/bluetooth</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                    <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Official Android Bluetooth API documentation for app developers.</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02)); transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="flex-shrink: 0; width: 48px; height: 48px; background: rgba(16, 185, 129, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            📡
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #10b981; margin: 0 0 0.5rem 0; font-size: 1.1rem;">BLE Guide</h4>
+                            <p style="margin: 0 0 0.75rem 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Bluetooth Low Energy Development</p>
+                        </div>
+                    </div>
+                    <a href="https://developer.android.com/guide/topics/connectivity/bluetooth-le" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #10b981; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.5rem 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; margin-top: 0.75rem; transition: all 0.3s ease;">
+                        <span>🔗</span>
+                        <span>developer.android.com/ble</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                    <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Complete guide to Bluetooth Low Energy development on Android.</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #f59e0b; background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02)); transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="flex-shrink: 0; width: 48px; height: 48px; background: rgba(245, 158, 11, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            🔌
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #f59e0b; margin: 0 0 0.5rem 0; font-size: 1.1rem;">HIDL Documentation</h4>
+                            <p style="margin: 0 0 0.75rem 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Hardware Interface Definition Language</p>
+                        </div>
+                    </div>
+                    <a href="https://source.android.com/docs/core/architecture/hidl" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #f59e0b; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.5rem 1rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px; margin-top: 0.75rem; transition: all 0.3s ease;">
+                        <span>🔗</span>
+                        <span>source.android.com/hidl</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                    <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Official HIDL documentation for HAL interface development.</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #ec4899; background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(236, 72, 153, 0.02)); transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="flex-shrink: 0; width: 48px; height: 48px; background: rgba(236, 72, 153, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            🚀
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #ec4899; margin: 0 0 0.5rem 0; font-size: 1.1rem;">AIDL Documentation</h4>
+                            <p style="margin: 0 0 0.75rem 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Android Interface Definition Language</p>
+                        </div>
+                    </div>
+                    <a href="https://source.android.com/docs/core/architecture/aidl" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #ec4899; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.5rem 1rem; background: rgba(236, 72, 153, 0.1); border-radius: 8px; margin-top: 0.75rem; transition: all 0.3s ease;">
+                        <span>🔗</span>
+                        <span>source.android.com/aidl</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                    <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Modern AIDL interface documentation replacing HIDL.</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #06b6d4; background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(6, 182, 212, 0.02)); transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="flex-shrink: 0; width: 48px; height: 48px; background: rgba(6, 182, 212, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                            📦
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #06b6d4; margin: 0 0 0.5rem 0; font-size: 1.1rem;">AOSP Source Code</h4>
+                            <p style="margin: 0 0 0.75rem 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Android Open Source Project</p>
+                        </div>
+                    </div>
+                    <a href="https://android.googlesource.com/platform/packages/modules/Bluetooth/" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #06b6d4; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.5rem 1rem; background: rgba(6, 182, 212, 0.1); border-radius: 8px; margin-top: 0.75rem; transition: all 0.3s ease;">
+                        <span>🔗</span>
+                        <span>android.googlesource.com</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                    <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Complete Bluetooth source code (Fluoride/Gabeldorschee).</p>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">📋 Bluetooth SIG Specifications</h3>
+            <div class="grid">
+                <div class="grid-item" style="border-left: 4px solid #6366f1;">
+                    <h4>📖 Bluetooth Core Specification</h4>
+                    <p><strong>Official Bluetooth Protocol Specification</strong></p>
+                    <a href="https://www.bluetooth.com/specifications/specs/" target="_blank" style="color: #6366f1; text-decoration: none; font-weight: 600;">
+                        🔗 bluetooth.com/specifications/specs/
+                    </a>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">Complete Bluetooth Core Specification (5.x) including all protocols and profiles.</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #3b82f6;">
+                    <h4>🎵 A2DP Profile Specification</h4>
+                    <p><strong>Advanced Audio Distribution Profile</strong></p>
+                    <a href="https://www.bluetooth.com/specifications/specs/a2dp-1-3-2/" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 600;">
+                        🔗 bluetooth.com/specifications/specs/a2dp-1-3-2/
+                    </a>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">A2DP specification for high-quality audio streaming.</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #10b981;">
+                    <h4>📞 HFP Profile Specification</h4>
+                    <p><strong>Hands-Free Profile</strong></p>
+                    <a href="https://www.bluetooth.com/specifications/specs/hands-free-profile-1-8/" target="_blank" style="color: #10b981; text-decoration: none; font-weight: 600;">
+                        🔗 bluetooth.com/specifications/specs/hands-free-profile-1-8/
+                    </a>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">HFP specification for automotive and headset voice calls.</p>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #f59e0b;">
+                    <h4>🔐 GATT Specification</h4>
+                    <p><strong>Generic Attribute Profile (BLE)</strong></p>
+                    <a href="https://www.bluetooth.com/specifications/specs/generic-attribute-profile-1-1/" target="_blank" style="color: #f59e0b; text-decoration: none; font-weight: 600;">
+                        🔗 bluetooth.com/specifications/specs/generic-attribute-profile-1-1/
+                    </a>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">GATT profile specification for BLE data organization.</p>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">🛠️ Development Tools & Resources</h3>
+            <p style="color: #94a3b8; margin-bottom: 1.5rem; font-size: 1rem;">Essential development tools, SDKs, and testing resources for Android Bluetooth development.</p>
+
+            <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+                <div class="grid-item" style="border-left: 4px solid #8b5cf6; background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.02)); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(139, 92, 246, 0.1); border-radius: 50%; filter: blur(30px);"></div>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; position: relative;">
+                        <div style="flex-shrink: 0; width: 52px; height: 52px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.1)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+                            🦈
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #8b5cf6; margin: 0 0 0.5rem 0; font-size: 1.15rem; font-weight: 700;">Wireshark</h4>
+                            <p style="margin: 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Bluetooth Packet Analyzer</p>
+                        </div>
+                    </div>
+                    <p style="margin: 1rem 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Essential tool for analyzing Bluetooth HCI snoop logs with deep packet inspection.</p>
+                    <a href="https://www.wireshark.org/" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #ffffff; background: linear-gradient(135deg, #8b5cf6, #7c3aed); text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.65rem 1.25rem; border-radius: 10px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
+                        <span>🔗</span>
+                        <span>Visit wireshark.org</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #ec4899; background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(236, 72, 153, 0.02)); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(236, 72, 153, 0.1); border-radius: 50%; filter: blur(30px);"></div>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; position: relative;">
+                        <div style="flex-shrink: 0; width: 52px; height: 52px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(236, 72, 153, 0.1)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);">
+                            📱
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #ec4899; margin: 0 0 0.5rem 0; font-size: 1.15rem; font-weight: 700;">Android SDK</h4>
+                            <p style="margin: 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">ADB and Platform Tools</p>
+                        </div>
+                    </div>
+                    <p style="margin: 1rem 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Download ADB, fastboot, and other essential Android development tools.</p>
+                    <a href="https://developer.android.com/studio/releases/platform-tools" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #ffffff; background: linear-gradient(135deg, #ec4899, #db2777); text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.65rem 1.25rem; border-radius: 10px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);">
+                        <span>🔗</span>
+                        <span>Download Platform Tools</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #06b6d4; background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(6, 182, 212, 0.02)); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(6, 182, 212, 0.1); border-radius: 50%; filter: blur(30px);"></div>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; position: relative;">
+                        <div style="flex-shrink: 0; width: 52px; height: 52px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);">
+                            📚
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #06b6d4; margin: 0 0 0.5rem 0; font-size: 1.15rem; font-weight: 700;">Android CDD</h4>
+                            <p style="margin: 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Compatibility Definition</p>
+                        </div>
+                    </div>
+                    <p style="margin: 1rem 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Android compatibility requirements including Bluetooth specifications.</p>
+                    <a href="https://source.android.com/docs/compatibility/cdd" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #ffffff; background: linear-gradient(135deg, #06b6d4, #0891b2); text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.65rem 1.25rem; border-radius: 10px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);">
+                        <span>🔗</span>
+                        <span>View CDD Document</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                </div>
+
+                <div class="grid-item" style="border-left: 4px solid #10b981; background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02)); position: relative; overflow: hidden;">
+                    <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; filter: blur(30px);"></div>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; position: relative;">
+                        <div style="flex-shrink: 0; width: 52px; height: 52px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1)); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                            🧪
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h4 style="color: #10b981; margin: 0 0 0.5rem 0; font-size: 1.15rem; font-weight: 700;">CTS/VTS</h4>
+                            <p style="margin: 0; color: #94a3b8; font-size: 0.85rem; font-weight: 600;">Compatibility Test Suites</p>
+                        </div>
+                    </div>
+                    <p style="margin: 1rem 0; font-size: 0.85rem; color: #64748b; line-height: 1.6;">Testing suites for Android compatibility and vendor verification.</p>
+                    <a href="https://source.android.com/docs/compatibility/cts" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #ffffff; background: linear-gradient(135deg, #10b981, #059669); text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.65rem 1.25rem; border-radius: 10px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        <span>🔗</span>
+                        <span>View Test Suites</span>
+                        <span style="margin-left: auto;">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="alert" style="margin-top: 1.5rem; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1)); border-left: 4px solid #8b5cf6;">
+                <h4 style="color: #8b5cf6; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-size: 1.25rem;">🎯</span>
+                    Essential Tool Setup Guide
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div style="padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border-left: 3px solid #3b82f6;">
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #3b82f6;">1. Install ADB:</strong> Download Platform Tools and add to PATH</p>
+                    </div>
+                    <div style="padding: 0.75rem; background: rgba(139, 92, 246, 0.1); border-radius: 8px; border-left: 3px solid #8b5cf6;">
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #8b5cf6;">2. Get Wireshark:</strong> Essential for HCI log analysis</p>
+                    </div>
+                    <div style="padding: 0.75rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border-left: 3px solid #10b981;">
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #10b981;">3. Enable USB Debug:</strong> On your Android device</p>
+                    </div>
+                    <div style="padding: 0.75rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px; border-left: 3px solid #f59e0b;">
+                        <p style="margin: 0; color: #cbd5e1; font-size: 0.9rem;"><strong style="color: #f59e0b;">4. Study CDD:</strong> Understand Bluetooth requirements</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">🎓 Learning Resources</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Resource</th>
+                        <th>Type</th>
+                        <th>Link</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Google Codelab - Bluetooth</strong></td>
+                        <td><span class="badge badge-info">Tutorial</span></td>
+                        <td><a href="https://developer.android.com/codelabs" target="_blank" style="color: #3b82f6;">🔗 Link</a></td>
+                        <td>Interactive Bluetooth development tutorials</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bluetooth Developer Portal</strong></td>
+                        <td><span class="badge badge-success">Portal</span></td>
+                        <td><a href="https://www.bluetooth.com/develop/" target="_blank" style="color: #10b981;">🔗 Link</a></td>
+                        <td>Official Bluetooth SIG developer resources</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Android Bluetooth Samples</strong></td>
+                        <td><span class="badge badge-warning">Code</span></td>
+                        <td><a href="https://github.com/android/connectivity-samples" target="_blank" style="color: #f59e0b;">🔗 Link</a></td>
+                        <td>Official Android Bluetooth code samples on GitHub</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stack Overflow - Bluetooth</strong></td>
+                        <td><span class="badge badge-error">Q&A</span></td>
+                        <td><a href="https://stackoverflow.com/questions/tagged/android-bluetooth" target="_blank" style="color: #ef4444;">🔗 Link</a></td>
+                        <td>Community Q&A for Bluetooth development issues</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Android Issue Tracker</strong></td>
+                        <td><span class="badge badge-info">Bug Reports</span></td>
+                        <td><a href="https://issuetracker.google.com/issues?q=componentid:27570" target="_blank" style="color: #3b82f6;">🔗 Link</a></td>
+                        <td>Report and track Android Bluetooth bugs</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rust Bluetooth (Gabeldorschee)</strong></td>
+                        <td><span class="badge badge-success">Source</span></td>
+                        <td><a href="https://android.googlesource.com/platform/packages/modules/Bluetooth/system/gd/" target="_blank" style="color: #10b981;">🔗 Link</a></td>
+                        <td>New Rust-based Bluetooth stack source code</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3 class="section-subheader">🎧 Audio Codec Resources</h3>
+            <div class="grid">
+                <div class="grid-item">
+                    <h4>📊 SBC Codec</h4>
+                    <p><strong>Subband Codec (Default)</strong></p>
+                    <p>Mandatory baseline codec for all Bluetooth audio devices</p>
+                </div>
+                <div class="grid-item">
+                    <h4>🎵 AAC Codec</h4>
+                    <p><strong>Advanced Audio Coding</strong></p>
+                    <a href="https://www.iis.fraunhofer.de/en/ff/amm/communication/aac.html" target="_blank" style="color: #3b82f6;">🔗 Fraunhofer AAC</a>
+                </div>
+                <div class="grid-item">
+                    <h4>⚡ aptX / aptX HD</h4>
+                    <p><strong>Qualcomm Low Latency Codec</strong></p>
+                    <a href="https://www.qualcomm.com/products/features/aptx" target="_blank" style="color: #10b981;">🔗 Qualcomm aptX</a>
+                </div>
+                <div class="grid-item">
+                    <h4>🎚️ LDAC</h4>
+                    <p><strong>Sony Hi-Res Audio Codec</strong></p>
+                    <a href="https://www.sony.net/Products/LDAC/" target="_blank" style="color: #f59e0b;">🔗 Sony LDAC</a>
+                </div>
+                <div class="grid-item">
+                    <h4>🆕 LC3</h4>
+                    <p><strong>Low Complexity Communications Codec</strong></p>
+                    <a href="https://www.bluetooth.com/specifications/specs/low-complexity-communication-codec-1-0/" target="_blank" style="color: #8b5cf6;">🔗 LC3 Spec</a>
+                    <p style="font-size: 0.85rem; margin-top: 0.5rem;">New codec for LE Audio (Bluetooth 5.2+)</p>
+                </div>
+            </div>
+
+            <h3 class="section-subheader">🚗 Automotive Bluetooth Resources</h3>
+            <div class="highlight">
+                <h4>Automotive-Specific Resources:</h4>
+                <div class="grid">
+                    <div class="grid-item">
+                        <h4>📇 PBAP Specification</h4>
+                        <p><strong>Phone Book Access Profile</strong></p>
+                        <a href="https://www.bluetooth.com/specifications/specs/phone-book-access-profile-1-2-3/" target="_blank" style="color: #3b82f6;">🔗 PBAP Spec</a>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Contact sync for automotive systems</p>
+                    </div>
+                    <div class="grid-item">
+                        <h4>📱 MAP Specification</h4>
+                        <p><strong>Message Access Profile</strong></p>
+                        <a href="https://www.bluetooth.com/specifications/specs/message-access-profile-1-4-2/" target="_blank" style="color: #10b981;">🔗 MAP Spec</a>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Message sync for automotive displays</p>
+                    </div>
+                    <div class="grid-item">
+                        <h4>🎛️ AVRCP Specification</h4>
+                        <p><strong>Audio/Video Remote Control</strong></p>
+                        <a href="https://www.bluetooth.com/specifications/specs/a-v-remote-control-profile-1-6-2/" target="_blank" style="color: #f59e0b;">🔗 AVRCP Spec</a>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Media control for automotive head units</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-success">
+                <strong>📌 Quick Reference Links:</strong>
+                <ul style="columns: 2; column-gap: 2rem;">
+                    <li><a href="https://source.android.com/docs/core/connect/bluetooth" target="_blank" style="color: #10b981;">Android BT Architecture</a></li>
+                    <li><a href="https://developer.android.com/guide/topics/connectivity/bluetooth" target="_blank" style="color: #10b981;">Android BT API Guide</a></li>
+                    <li><a href="https://www.bluetooth.com/specifications/specs/" target="_blank" style="color: #10b981;">Bluetooth Specifications</a></li>
+                    <li><a href="https://www.wireshark.org/" target="_blank" style="color: #10b981;">Wireshark Download</a></li>
+                    <li><a href="https://android.googlesource.com/platform/packages/modules/Bluetooth/" target="_blank" style="color: #10b981;">AOSP BT Source</a></li>
+                    <li><a href="https://github.com/android/connectivity-samples" target="_blank" style="color: #10b981;">Android BT Samples</a></li>
+                    <li><a href="https://stackoverflow.com/questions/tagged/android-bluetooth" target="_blank" style="color: #10b981;">Stack Overflow Q&A</a></li>
+                    <li><a href="https://issuetracker.google.com/issues?q=componentid:27570" target="_blank" style="color: #10b981;">Issue Tracker</a></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p><strong>Android Bluetooth Stack - Complete Guide</strong></p>
+        <p>Version 2.0 | Last Updated: October 17, 2025</p>
+        <p>Created for: <span style="color: var(--accent-color); font-weight: bold;">Bhawesh Jha</span></p>
+        <p style="margin-top: 1rem;">
+            <span class="badge badge-info">Bluetooth Classic</span>
+            <span class="badge badge-success">BLE</span>
+            <span class="badge badge-warning">HIDL</span>
+            <span class="badge badge-error">AIDL</span>
+        </p>
+    </div>
+
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation on scroll
+        const observerOptions = {
+            threshold: 0.05,
+            rootMargin: '100px 0px 100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card').forEach((card, index) => {
+            // Make first 3 cards immediately visible
+            if (index < 3) {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            } else {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            }
+        });
+
+        // Dynamic Cursor Trail Effect
+        const cursor = document.createElement('div');
+        cursor.className = 'cursor';
+        document.body.appendChild(cursor);
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let cursorX = 0;
+        let cursorY = 0;
+        let trails = [];
+        const trailLength = 20;
+        let frameCount = 0;
+
+        // Smooth cursor movement
+        function updateCursor() {
+            const dx = mouseX - cursorX;
+            const dy = mouseY - cursorY;
+            
+            cursorX += dx * 0.2;
+            cursorY += dy * 0.2;
+            
+            cursor.style.left = cursorX - 10 + 'px';
+            cursor.style.top = cursorY - 10 + 'px';
+            
+            requestAnimationFrame(updateCursor);
+        }
+        updateCursor();
+
+        // Track mouse movement
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            frameCount++;
+            
+            // Create Bluetooth trail more frequently for better visibility
+            if (frameCount % 2 === 0) {
+                createTrail(mouseX, mouseY);
+            }
+            
+            // Create Bluetooth particles
+            if (frameCount % 6 === 0) {
+                createParticle(mouseX, mouseY);
+            }
+        });
+
+        // Create Bluetooth trail symbols
+        function createTrail(x, y) {
+            const trail = document.createElement('div');
+            trail.className = 'trail';
+            trail.style.left = x - 9 + 'px';
+            trail.style.top = y - 12 + 'px';
+            
+            document.body.appendChild(trail);
+            
+            setTimeout(() => {
+                if (trail.parentNode) {
+                    trail.parentNode.removeChild(trail);
+                }
+            }, 900);
+        }
+
+        // Create floating Bluetooth particles
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 30 + Math.random() * 40;
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+            
+            particle.style.setProperty('--tx', tx + 'px');
+            particle.style.setProperty('--ty', ty + 'px');
+            particle.style.left = x - 7 + 'px';
+            particle.style.top = y - 9 + 'px';
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 1200);
+        }
+
+        // Hide cursor when leaving window
+        document.addEventListener('mouseleave', () => {
+            cursor.style.opacity = '0';
+        });
+
+        document.addEventListener('mouseenter', () => {
+            cursor.style.opacity = '1';
+        });
+    </script>
+</body>
+</html>
