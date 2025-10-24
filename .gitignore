@@ -3,6 +3,10 @@
 MSIL-*.txt
 Logcatstudy
 
+# But keep SEO files
+!robots.txt
+!sitemap.xml
+
 # OS files
 .DS_Store
 Thumbs.db

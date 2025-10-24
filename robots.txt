@@ -1,0 +1,5 @@
+# https://thewat00cher.github.io/BluetoothStack/robots.txt
+
+User-agent: *
+Allow: /
+Sitemap: https://thewat00cher.github.io/BluetoothStack/sitemap.xml
